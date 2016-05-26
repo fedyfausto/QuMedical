@@ -1,50 +1,50 @@
 <?php
 
+try{
+	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	ini_set("log_errors", 1);
+	ini_set("error_log", dirname(__FILE__)."/errors.log");
 
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-ini_set("log_errors", 1);
-ini_set("error_log", dirname(__FILE__)."/errors.log");
+	require_once "config.php";
+	require_once "System.class.php";
+	require_once "Process.class.php";
+	require_once "vendor/autoload.php";
+	use PhpOrient\PhpOrient;
+	use PhpOrient\Protocols\Binary\Data\ID;
 
-require_once "config.php";
-require_once "System.class.php";
-require_once "Process.class.php";
-require_once "vendor/autoload.php";
-use PhpOrient\PhpOrient;
-use PhpOrient\Protocols\Binary\Data\ID;
-
-$domains_permit = ['localhost'];
+	$domains_permit = ['localhost'];
 
 
 
-if(isset($_POST['action']) && (in_array($_SERVER['HTTP_HOST'],$domains_permit))){
+	if(isset($_POST['action']) && (in_array($_SERVER['HTTP_HOST'],$domains_permit))){
 
-	$func = $_POST['action'];
-	switch($func){
-		case 'taskList':
+		$func = $_POST['action'];
+		switch($func){
+			case 'taskList':
 			echo json_encode((object) array('status' => 200,"data" =>taskList()));
 			break;
 
-		case 'deleteTask':
+			case 'deleteTask':
 			echo json_encode((object) array('status' => 200,"data" =>deleteTask($_POST['rid'])));
 			break;
-		case 'abortTask':
+			case 'abortTask':
 			echo json_encode((object) array('status' => 200,"data" =>abortTask($_POST['rid'])));
 			break;
 
-		case 'countTask':
+			case 'countTask':
 			echo json_encode((object) array('status' => 200,"data" =>countTask($_POST['status'])));
 			break;
 
-		case 'ramUsage':
+			case 'ramUsage':
 			echo json_encode((object) array('status' => 200,"data" =>System::getMemoryInfo()));
 			break;
 
-		case 'netInterfaces':
+			case 'netInterfaces':
 
 			echo json_encode((object) array('status' => 200,"data" =>System::getNetDeviceList()));
 			break;
 
-		case 'getBandwidth':
+			case 'getBandwidth':
 
 			if(isset($_POST['int']) && !is_null($_POST['int']) && $_POST['int']!=""){
 				$interface=$_POST['int'];
@@ -64,75 +64,79 @@ if(isset($_POST['action']) && (in_array($_SERVER['HTTP_HOST'],$domains_permit)))
 			}
 			break;
 
-		case 'getServerLoad':
+			case 'getServerLoad':
 			echo json_encode((object) array('status' => 200,"data" =>System::getServerLoad()));
 
 			break;
 
-		case 'getDiskSpace':
+			case 'getDiskSpace':
 			echo json_encode((object) array('status' => 200,"data" =>(object) array('total' => System::getTotalSpace(),"free" =>System::getFreeSpace(), "used"=>(System::getTotalSpace()-System::getFreeSpace()))));
 
 			break;
-		default:
+			default:
 			echo json_encode((object) array('status' => 404));
 			break;
+		}
+
 	}
+	else{
+		echo json_encode((object) array('status' => 404));
+	}
+	exit(0);
 
+
+	function connectDB(){
+		$client = new PhpOrient();
+		$client->configure( array(
+			'username' => 'root',
+			'password' => 'root',
+			'hostname' => 'localhost',
+			'port'     => 2424,
+			));
+
+		$client->connect();
+		$client->dbOpen( 'System', 'admin', 'admin' );
+		return $client;
+	}
+	function taskList(){
+
+		$client = connectDB();
+		return $client->query( 'SELECT * FROM Task' );
+
+	}
+	function startTask($files){
+
+		exec ( PATH_SCRIPTS . "request_task.sh $files",$out);
+
+		return true;
+
+
+	}
+	function abortTask($index){
+
+		$client = connectDB();
+		$record = $client->recordLoad( new ID( $index ) )[0];
+		$name = $record->getOData()['name'];
+		exec (PATH_SCRIPTS . "request_stop.sh $name");
+		return $record->getOData();
+
+	}
+	function deleteTask($index){
+
+		$client = connectDB();
+		$client->recordDelete( new ID( $index) );
+		return true;
+
+	}
+	function countTask($status){
+		$client = connectDB();
+		$record = $client->query( "SELECT COUNT(*) FROM Task WHERE status ='$status''" )[0];
+		return $record->getOData()['COUNT'];
+
+	}
 }
-else{
-	echo json_encode((object) array('status' => 404));
-}
-exit(0);
-
-
-function connectDB(){
-	$client = new PhpOrient();
-	$client->configure( array(
-		'username' => 'root',
-		'password' => 'root',
-		'hostname' => 'localhost',
-		'port'     => 2424,
-	));
-
-	$client->connect();
-	$client->dbOpen( 'System', 'admin', 'admin' );
-	return $client;
-}
-function taskList(){
-
-	$client = connectDB();
-	return $client->query( 'SELECT * FROM Task' );
-
-}
-function startTask($files){
-
-	exec ( PATH_SCRIPTS . "request_task.sh $files",$out);
-
-	return true;
-
-
-}
-function abortTask($index){
-
-	$client = connectDB();
-	$record = $client->recordLoad( new ID( $index ) )[0];
-	$name = $record->getOData()['name'];
-	exec (PATH_SCRIPTS . "request_stop.sh $name");
-	return $record->getOData();
-
-}
-function deleteTask($index){
-
-	$client = connectDB();
-	$client->recordDelete( new ID( $index) );
-	return true;
-
-}
-function countTask($status){
-	$client = connectDB();
-	$record = $client->query( "SELECT COUNT(*) FROM Task WHERE status ='$status''" )[0];
-	return $record->getOData()['COUNT'];
-
+catch(Exception $e){
+	echo json_encode((object) array('status' => $e->getCode(),"message" =>$e->getMessage()));
 }
 
 ?>
