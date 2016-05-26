@@ -151,7 +151,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$file->seek($i);
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
-			fwrite($file_quieries,$STRING);
+			fwrite_stream($file_quieries,$STRING);
 			unset($VALUES);
 			unset($STRING);
 			$perc = floor(min(100,($i / $FILE_LINES)*100));
@@ -163,6 +163,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			break;
 		}
 		fwrite($file_quieries,"DISCONNECT;");
+		fclose($file_quieries);
 		trace("Parsing completato [{$cronometro_local->stop()}]");
 		$cronometro_local->start();
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
@@ -197,6 +198,17 @@ function secondsToTime($s){
 	$m = floor($s / 60);
 	$s -= $m * 60;
 	return $h.':'.sprintf('%02d', $m).':'.sprintf('%02d', $s);
+}
+
+
+function fwrite_stream($fp, $string) {
+    for ($written = 0; $written < strlen($string); $written += $fwrite) {
+        $fwrite = fwrite($fp, substr($string, $written));
+        if ($fwrite === false) {
+            return $written;
+        }
+    }
+    return $written;
 }
 
 function downloadFile($url, $path){
