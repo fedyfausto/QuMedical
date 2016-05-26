@@ -186,7 +186,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
 		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
 		unlink('queries.sh');
-		unlink("$DATA_TYPES[$i].data");
+		
 	}
 	else{
 
@@ -213,7 +213,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 
 		foreach ($FIELD_ARRAY as $key => $propriety) {
 			if($key==0){
-				trace("Prima chiave STRINGA trovata: $propriety");
+				#trace("Prima chiave STRINGA trovata: $propriety");
 				$client_db->queryDB( "CREATE PROPERTY $CLASS_NAME.$propriety STRING");
 			}
 			else{
@@ -265,6 +265,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		unlink("$DATA_TYPES[$i].data");
 
 	}
+	unlink("$DATA_TYPES[$i].data");
 	
 }
 
