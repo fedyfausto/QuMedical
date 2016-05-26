@@ -6,9 +6,8 @@ ARGOMENTI:
 3) TIPO DI DATO
 */
 $CURRENT_DIR=getcwd();
-echo $CURRENT_DIR;
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
-require_once "./vendor/autoload.php";
+require_once $CURRENT_DIR."/vendor/autoload.php";
 use PhpOrient\PhpOrient;
 use PhpOrient\Protocols\Binary\Data\ID;
 use PhpOrient\Protocols\Binary\Data\Record;
