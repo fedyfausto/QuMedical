@@ -34,6 +34,7 @@ CREATE CLASS Experiment;
 CREATE PROPERTY Experiment.name STRING;
 CREATE PROPERTY Experiment.timestamp INTEGER;
 CREATE PROPERTY Experiment.status SHORT;
+CREATE PROPERTY Experiment.weight STRING;
 
 
 

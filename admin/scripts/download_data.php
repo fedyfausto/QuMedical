@@ -80,6 +80,7 @@ $client_db = new ClientDB();
 if($client_db->existDB($NAME_EXPERIMENT)){
 	//trace("ATTENZIONE - Database già esistente. Procedo con l'eliminazione");
 	$client_db->deleteDB($NAME_EXPERIMENT);
+	$client_db_system->queryDB("DELETE FROM Experiment WHERE name='$NAME_EXPERIMENT'");
 }
 $client_db->createDB($NAME_EXPERIMENT);
 
@@ -88,10 +89,19 @@ if(!$client_db->existDB($NAME_EXPERIMENT)){
 	$client_db_system->queryDB("UPDATE Task SET status = -2,percentage = 0 WHERE name = '$NAME_EXPERIMENT';");
 	exit(1);
 }
-
+$client_db_system->queryDB("INSERT INTO Experiment (name,timestamp,status,weight) VALUES ('$NAME_EXPERIMENT','".time()."',0,'0')");
 $client_db->openDB($NAME_EXPERIMENT);
 
 trace("Database creato [{$cronometro->stop()}]");
+$CURRENT_PERCENT=0;
+$CURRENT_STATUS=2;
+$client_db_system->queryDB("UPDATE Task SET status = $CURRENT_STATUS,percentage = 0 WHERE name = '$NAME_EXPERIMENT';");
+
+
+CREATE PROPERTY Experiment.name STRING;
+CREATE PROPERTY Experiment.timestamp INTEGER;
+CREATE PROPERTY Experiment.status SHORT;
+
 trace("Inizio il parsing dei file");
 $cronometro->start();
 for($i = 0; $i < count($DATA_TYPES); ++$i) {
@@ -175,7 +185,8 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
 		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
 		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
-
+		unlink('queries.sh');
+		unlink("$DATA_TYPES[$i].data");
 	}
 	else{
 
@@ -212,11 +223,61 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 
 		trace("Creazione della classe $CLASS_NAME completata [{$cronometro_local->stop()}]");
 
+		trace("Inizio del parsing delle informazioni");
+		$cronometro_local->start();
+		$file_quieries = fopen('queries.sh', 'w');
+		fwrite($file_quieries,"
+			connect remote:localhost/$NAME_EXPERIMENT root root;
+			SET ignoreErrors TRUE;
+			SET echo FALSE;");
+
+		$file->seek(1);
+		$i=0;
+		while (!$file->eof()) {
+			$i++;
+			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
+			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
+			$STRING=preg_replace( "/\r|\n/", "",$STRING);
+			fwrite($file_quieries,$STRING."\n");
+			unset($VALUES);
+			unset($STRING);
+			$perc = floor(min(100,($i / $FILE_LINES)*100));
+			$CURRENT_PERCENT=$perc;
+			traceline("Parsing in corso... $perc% [$i]");
+			if($cronometro_local->passed(10)){
+				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
+			}
+			$file->next();
+		}
+
+		fwrite($file_quieries,"DISCONNECT;");
+		fclose($file_quieries);
+		unset($i);
+		unset($file);
+		unset($FIELD_ARRAY);
+		unset($FIELD_STRING);
+		trace("Parsing completato [{$cronometro_local->stop()}]");
+		$cronometro_local->start();
+		trace("Inizio inserimento dati nel Database - attendere prego\r");
+		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
+		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
+		unlink('queries.sh');
+		unlink("$DATA_TYPES[$i].data");
+
 	}
-	trace("Parsing e inserimento dei dati Completato! [{$cronometro->stop()}]");
+	
 }
 
 
+/*INSERIRE DB NELLA LISTA ESPERIMENTI*/
+$sizedb = $client_db->sizeDB();
+$client_db_system->queryDB("UPDATE Experiment SET status=1, weight='$sizedb' WHERE name='$NAME_EXPERIMENT'");
+
+$CURRENT_PERCENT=0;
+$CURRENT_STATUS=3;
+$client_db_system->queryDB("UPDATE Task SET status = $CURRENT_STATUS,percentage = 100 WHERE name = '$NAME_EXPERIMENT';");
+
+trace("Parsing e inserimento dei dati Completato! [{$cronometro->stop()}]");
 $client_db->closeDB();
 $client_db_system->closeDB();
 
@@ -417,6 +478,14 @@ class ClientDB {
 			$this->db_opened=true;
 			$this->db=$db;
 		}
+	}
+
+	public function sizeDB(){
+		if($this->db_opened && $this->db!=""){
+			return $this->client->dbSize();
+		}
+		else return 0;
+		
 	}
 
 	public function closeDB(){
