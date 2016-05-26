@@ -3,7 +3,7 @@ function query {
 	{
 		if [ $# -lt 1 ]  #  Il numero di argomenti passati allo script è corretto?
 	then
-	/opt/orientdb/bin/console.sh "
+	/home/binding/orientdb/bin/console.sh "
 		connect remote:localhost/System root root;
 		SET ignoreErrors TRUE;
 		SET echo FALSE;
@@ -11,7 +11,7 @@ function query {
 		DISCONNECT;
 		";
 	else
-		/opt/orientdb/bin/console.sh "
+		/home/binding/orientdb/bin/console.sh "
 		connect remote:localhost/$1 root root;
 		SET ignoreErrors TRUE;
 		SET echo FALSE;
@@ -26,7 +26,7 @@ function query {
 
 function queryfile {
 	{
-	/opt/orientdb/bin/console.sh $(cat $1);
+	/home/binding/orientdb/bin/console.sh $(cat $1);
 		
 	}>/dev/null
 
