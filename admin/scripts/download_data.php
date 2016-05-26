@@ -98,10 +98,6 @@ $CURRENT_STATUS=2;
 $client_db_system->queryDB("UPDATE Task SET status = $CURRENT_STATUS,percentage = 0 WHERE name = '$NAME_EXPERIMENT';");
 
 
-CREATE PROPERTY Experiment.name STRING;
-CREATE PROPERTY Experiment.timestamp INTEGER;
-CREATE PROPERTY Experiment.status SHORT;
-
 trace("Inizio il parsing dei file");
 $cronometro->start();
 for($i = 0; $i < count($DATA_TYPES); ++$i) {
