@@ -78,13 +78,14 @@ $cronometro->start();
 $client_db = new ClientDB();
 //controllo se esiste il DB, in caso lo elimino (si può ovviare)
 if($client_db->existDB($NAME_EXPERIMENT)){
-	trace("ATTENZIONE - Database già esistente. Procedo con l'eliminazione");
+	//trace("ATTENZIONE - Database già esistente. Procedo con l'eliminazione");
 	$client_db->deleteDB($NAME_EXPERIMENT);
 }
 $client_db->createDB($NAME_EXPERIMENT);
 
 if(!$client_db->existDB($NAME_EXPERIMENT)){
 	trace("ERRORE - Database non creato.");
+	$client_db_system->queryDB("UPDATE Task SET status = -2,percentage = 0 WHERE name = '$NAME_EXPERIMENT';");
 	exit(1);
 }
 
@@ -315,6 +316,7 @@ function countLines($file){
 	$file = new SplFileObject($file);
 	while (!$file->eof()) {
 		$count++;
+		echo $count."\r";
 		$file->next();
 	}
 	return $count;
