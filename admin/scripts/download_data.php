@@ -42,7 +42,7 @@ $client_db_system = new ClientDB();
 $client_db_system->openDB('System');
 $client_db_system->queryDB("DELETE FROM Task WHERE name = '$NAME_EXPERIMENT'");
 $client_db_system->queryDB("INSERT INTO Task (name,file, status, date,percentage) VALUES ('$NAME_EXPERIMENT','$DATA_TYPES[$i]',$CURRENT_STATUS, ".time().", 0)");
-exit();
+
 //PREPARO LA CARTELLA
 if (is_dir($CURRENT_DIR."/".$NAME_EXPERIMENT)) {
 	delDir($CURRENT_DIR."/".$NAME_EXPERIMENT);
@@ -75,6 +75,7 @@ trace("Ho finito il download dei file [{$cronometro->stop()}]");
 $CURRENT_PERCENT=0;
 $CURRENT_STATUS=1;
 $client_db_system->queryDB("UPDATE Task SET status = $CURRENT_STATUS,percentage = 0 WHERE name = '$NAME_EXPERIMENT';");
+
 trace("Inizio a creare il Database");
 $cronometro->start();
 
