@@ -184,6 +184,11 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			preg_replace('/[\[]/', '_0_',
 				preg_replace('/[ ]/', '_', 
 					preg_replace('/[\t]/', ',', $file->current()))));
+
+		$FIELD_ARRAY= explode("\t", 
+			preg_replace('/[\]]/', '_1_',
+				preg_replace('/[\[]/', '_0_',
+					preg_replace('/[ ]/', '_', $file->current()))));
 		/*Ho perparato la prima riga quindi creo la classe*/
 
 		try {
