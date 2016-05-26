@@ -1,0 +1,49 @@
+connect remote:localhost root root;
+SET ignoreErrors TRUE;
+SET echo FALSE;
+drop database remote:localhost/System root root;
+create database remote:localhost/System root root remote;
+DROP CLASS Task;
+CREATE CLASS Task;
+
+CREATE PROPERTY Task.name STRING;
+CREATE PROPERTY Task.file_name STRING;
+CREATE PROPERTY Task.status SHORT;
+CREATE PROPERTY Task.percentage INTEGER;
+CREATE PROPERTY Task.date INTEGER;
+
+
+DROP CLASS Users;
+CREATE CLASS Users;
+
+CREATE PROPERTY Users.name STRING;
+CREATE PROPERTY Users.email STRING;
+CREATE PROPERTY Users.level SHORT;
+CREATE PROPERTY Users.password STRING;
+CREATE PROPERTY Users.photo STRING;
+
+INSERT INTO Users (name,email,level,password,photo) VALUES (Administrator,root@medicaldb.com,100,9f9b430d929ca3a2c5ad84e9cc4c63404465cfbd4e97d5f86e95e26ec0bb03f8,admin.png);
+
+
+INSERT INTO Users (name,email,level,password,photo) VALUES (Guest,Guest@medicaldb.com,0,84983c60f7daadc1cb8698621f802c0d9f9a3c3c295c810748fb048115c186ec,guest.png);
+
+
+DROP CLASS Experiment;
+CREATE CLASS Experiment;
+
+CREATE PROPERTY Experiment.name STRING;
+CREATE PROPERTY Experiment.timestamp INTEGER;
+CREATE PROPERTY Experiment.status SHORT;
+
+
+
+DROP CLASS Research;
+CREATE CLASS Research;
+
+CREATE PROPERTY Research.user STRING;
+CREATE PROPERTY Research.file STRING;
+CREATE PROPERTY Research.timestamp INTEGER;
+CREATE PROPERTY Research.status SHORT;
+
+
+DISCONNECT;

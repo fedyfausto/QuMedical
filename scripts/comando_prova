@@ -1,0 +1,5 @@
+./download_data.sh -e "EsperimentoTest" -s DBMedical -d "http://alpha.dmi.unict.it/shiny/users/binding/filetest/samples_demo.data http://alpha.dmi.unict.it/shiny/users/binding/filetest/processed_demo.data" -t "samples processed"
+
+
+curl --user admin:admin --header "Accept: text/csv" -d "select CompositeSequence_Identifier,Sample_1,Sample_2 from Processed" "http://localhost:2480/command/EsperimentoTest/sql" > test.csv
+
