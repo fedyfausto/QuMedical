@@ -160,6 +160,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			if($cronometro_local->passed(10)){
 				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
 			}
+			break;
 		}
 		fwrite($file_quieries,"DISCONNECT;\n");
 		trace("Parsing completato [{$cronometro_local->stop()}]");
