@@ -330,8 +330,9 @@ function downloadFile($url, $path){
 				$perc = floor(min(100,($current_byte / $dim_file_online)*100));
 				$CURRENT_PERCENT=$perc;
 				//traceline("Download in corso... $perc%");
-				traceline("Download in corso... $perc%");
+				
 				if($cronometro->passed(10)){
+					traceline("Download in corso... $perc%");
 					$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
 				}
 				
