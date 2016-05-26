@@ -64,8 +64,10 @@ for($i = 0; $i < count($DATA_LINKS); ++$i) {
 	$client_db_system->queryDB("UPDATE Task SET percentage = 100, file_name='$DATA_TYPES[$i].data' WHERE name = '$NAME_EXPERIMENT';");
 	trace("Download del file $DATA_TYPES[$i].data:");
 	downloadFile($DATA_LINKS[$i],$DATA_TYPES[$i].".data");
+	$CURRENT_PERCENT=0;
 
 }
+
 trace("Ho finito il download dei file [{$cronometro->stop()}]");
 
 /* ------------------------*/
