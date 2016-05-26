@@ -151,16 +151,14 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$file->seek($i);
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
-			echo $STRING;
-			$bytewrited=fwrite($file_quieries,$STRING,strlen(utf8_decode($STRING)));
-			trace($bytewrited." / ".strlen(utf8_decode($STRING)));
+			$STRING=preg_replace( "/\r|\n/", "",$STRING);
+			fwrite($file_quieries,$STRING);
 			unset($VALUES);
 			unset($STRING);
 			$perc = floor(min(100,($i / $FILE_LINES)*100));
 			$CURRENT_PERCENT=$perc;
 			traceline("Parsing in corso... $perc% [$i]");
 			if($cronometro_local->passed(10)){
-
 				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
 			}
 			break;
