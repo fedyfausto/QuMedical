@@ -1,5 +1,10 @@
 <?php
+
+
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
+ini_set("log_errors", 1);
+ini_set("error_log", "./errors.log");
+
 require_once "config.php";
 require_once "System.class.php";
 require_once "Process.class.php";
