@@ -333,7 +333,7 @@ function downloadFile($url, $path){
 				
 				if($cronometro->passed(10)){
 					traceline("Download in corso... $perc%");
-					$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
+					$client_db_system->queryDB("UPDATE Task SET percentage = '$perc' WHERE name = '$NAME_EXPERIMENT';");
 				}
 				
 			}
