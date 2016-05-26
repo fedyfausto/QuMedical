@@ -27,10 +27,6 @@ $CURRENT_STATUS=0;
 $cronometro = new Cronometro();
 // 0 = starting_download, 1 = downloading, 2 parsing, 3 finished, -1 aborted
 
-
-
-
-
 if(is_null($NAME_EXPERIMENT) || $NAME_EXPERIMENT==""){
 	trace("Errore - Nome dell'esperimento mancante");
 	exit(1);
@@ -161,7 +157,6 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			if($cronometro_local->passed(10)){
 				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
 			}
-			break;
 		}
 		fwrite($file_quieries,"DISCONNECT;");
 		fclose($file_quieries);
@@ -203,17 +198,19 @@ function secondsToTime($s){
 
 
 function fwrite_stream($fp, $string) {
-    for ($written = 0; $written < strlen($string); $written += $fwrite) {
-        $fwrite = fwrite($fp, substr($string, $written));
-        if ($fwrite === false) {
-            return $written;
-        }
-    }
-    return $written;
+	for ($written = 0; $written < strlen($string); $written += $fwrite) {
+		$fwrite = fwrite($fp, substr($string, $written));
+		if ($fwrite === false) {
+			return $written;
+		}
+	}
+	return $written;
 }
 
 function downloadFile($url, $path){
 	global $CURRENT_PERCENT;
+	global $client_db_system;
+	global $cronometro;
 	$newfname = $path;
 	$dim_file_online = curl_get_file_size($url);
 	$file = fopen ($url, 'rb');
@@ -229,6 +226,9 @@ function downloadFile($url, $path){
 				$CURRENT_PERCENT=$perc;
 				//traceline("Download in corso... $perc%");
 				traceline("Download in corso... $perc%");
+				if($cronometro->passed(10)){
+					$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
+				}
 				
 			}
 		}
