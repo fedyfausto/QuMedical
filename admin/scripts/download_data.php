@@ -5,7 +5,7 @@ ARGOMENTI:
 2) LINKS DATA
 3) TIPO DI DATO
 */
-$CURRENT_DIR=getcwd();
+$CURRENT_DIR=dirname(__FILE__);
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 require_once $CURRENT_DIR."/vendor/autoload.php";
 use PhpOrient\PhpOrient;
