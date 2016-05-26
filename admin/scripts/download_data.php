@@ -151,6 +151,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$file->seek($i);
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
+			echo $STRING;
 			$bytewrited=fwrite($file_quieries,$STRING,strlen(utf8_decode($STRING)));
 			trace($bytewrited." / ".strlen(utf8_decode($STRING)));
 			unset($VALUES);
