@@ -5,10 +5,10 @@ try{
 	//ini_set("log_errors", 1);
 	//ini_set("error_log", dirname(__FILE__)."/errors.log");
 
-	require_once "config.php";
-	require_once "System.class.php";
-	require_once "Process.class.php";
-	require_once "vendor/autoload.php";
+	require_once dirname(__FILE__)."/config.php";
+	require_once dirname(__FILE__)."/System.class.php";
+	require_once dirname(__FILE__)."/Process.class.php";
+	require_once dirname(__FILE__)."/vendor/autoload.php";
 	use PhpOrient\PhpOrient;
 	use PhpOrient\Protocols\Binary\Data\ID;
 
