@@ -98,18 +98,18 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 	$client_db_system->queryDB("UPDATE Task SET percentage = 0, file_name='$DATA_TYPES[$i].data' WHERE name = '$NAME_EXPERIMENT';");
 	$FILE_LINES = countLines("$DATA_TYPES[$i].data");
 	trace("Inizio il parsing del file $DATA_TYPES[$i].data [$FILE_LINES righe]");
+
+	$CLASS_NAME=ucfirst($DATA_TYPES[$i]);
+	trace("Creazione della classe $CLASS_NAME in corso...");
+	$cronometro_local = new Cronometro();
+	$cronometro_local->start();
+	/*INIZIO IL PARSING */
+	$file = new SplFileObject("$DATA_TYPES[$i].data");
+	$file->setFlags(SplFileObject::SKIP_EMPTY | SplFileObject::READ_AHEAD);
+
 	if($DATA_TYPES[$i]=="samples"){
 
 		/* creo la classe*/
-		$CLASS_NAME=ucfirst($DATA_TYPES[$i]);
-		trace("Creazione della classe $CLASS_NAME in corso...");
-		$cronometro_local = new Cronometro();
-		$cronometro_local->start();
-		/*INIZIO IL PARSING */
-		$file = new SplFileObject("$DATA_TYPES[$i].data");
-		$file->setFlags(SplFileObject::SKIP_EMPTY | SplFileObject::READ_AHEAD);
-
-
 		/*PRENDO LA PRIMA RIGA*/
 		$file->seek(0);  
 		$FIELD_ARRAY= explode("\t", 
@@ -164,25 +164,12 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$file->next();
 		}
 
-/*
-		for($i = 1; $i < $FILE_LINES; $i++) {
-			
-			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
-			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
-			$STRING=preg_replace( "/\r|\n/", "",$STRING);
-			fwrite($file_quieries,$STRING."\n");
-			unset($VALUES);
-			unset($STRING);
-			$perc = floor(min(100,($i / $FILE_LINES)*100));
-			$CURRENT_PERCENT=$perc;
-			traceline("Parsing in corso... $perc% [$i]");
-			if($cronometro_local->passed(10)){
-				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
-			}
-		}*/
-
 		fwrite($file_quieries,"DISCONNECT;");
 		fclose($file_quieries);
+		unset($i);
+		unset($file);
+		unset($FIELD_ARRAY);
+		unset($FIELD_STRING);
 		trace("Parsing completato [{$cronometro_local->stop()}]");
 		$cronometro_local->start();
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
@@ -190,6 +177,38 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
 
 	}
+	else{
+
+		$file->seek(0);
+		$FIELD_STRING=preg_replace('/[\]]/', '_1_',
+			preg_replace('/[\[]/', '_0_',
+				preg_replace('/[ ]/', '_', 
+					preg_replace('/[\t]/', ',', $file->current()))));
+		/*Ho perparato la prima riga quindi creo la classe*/
+
+		try {
+			$client_db->queryDB("create class $CLASS_NAME");
+		}
+		catch(Exception $e){
+			$client_db->queryDB("DROP class $CLASS_NAME");
+			$client_db->queryDB("create class $CLASS_NAME");
+		}
+
+
+		foreach ($FIELD_ARRAY as $key => $propriety) {
+			if($key==0){
+				trace("Prima chiave STRINGA trovata: $propriety");
+				$client_db->queryDB( "CREATE PROPERTY $CLASS_NAME.$propriety STRING");
+			}
+			else{
+				$client_db->queryDB( "CREATE PROPERTY $CLASS_NAME.$propriety DOUBLE");
+			}
+		}
+
+		trace("Creazione della classe $CLASS_NAME completata [{$cronometro_local->stop()}]");
+
+	}
+	trace("Parsing e inserimento dei dati Completato! [{$cronometro->stop()}]");
 }
 
 
