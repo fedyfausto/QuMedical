@@ -314,11 +314,8 @@ function delDir($dir) {
 function countLines($file){
 	$count = 0;
 	$file = new SplFileObject($file);
-	while (!$file->eof()) {
-		$count++;
-		echo $count."\r";
-		$file->next();
-	}
+	$file->seek($file->getSize());
+	$count = $file->key();
 	return $count;
 }
 
