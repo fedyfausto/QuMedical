@@ -148,7 +148,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
 			$STRING=preg_replace( "/\r|\n/", "",$STRING);
-			fwrite($file_quieries,$STRING);
+			fwrite($file_quieries,$STRING."\n");
 			unset($VALUES);
 			unset($STRING);
 			$perc = floor(min(100,($i / $FILE_LINES)*100));
