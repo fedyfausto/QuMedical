@@ -1,6 +1,6 @@
 <?php
 
-try{
+
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	//ini_set("log_errors", 1);
 	//ini_set("error_log", dirname(__FILE__)."/errors.log");
@@ -14,7 +14,7 @@ try{
 
 	$domains_permit = ['localhost'];
 
-
+try{
 
 	if(isset($_POST['action']) && (in_array($_SERVER['HTTP_HOST'],$domains_permit))){
 
