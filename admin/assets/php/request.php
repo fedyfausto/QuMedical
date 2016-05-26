@@ -2,8 +2,8 @@
 
 try{
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
-	ini_set("log_errors", 1);
-	ini_set("error_log", dirname(__FILE__)."/errors.log");
+	//ini_set("log_errors", 1);
+	//ini_set("error_log", dirname(__FILE__)."/errors.log");
 
 	require_once "config.php";
 	require_once "System.class.php";
@@ -137,6 +137,7 @@ try{
 }
 catch(Exception $e){
 	echo json_encode((object) array('status' => $e->getCode(),"message" =>$e->getMessage()));
+	exit(0);
 }
 
 ?>
