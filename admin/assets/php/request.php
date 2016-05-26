@@ -128,7 +128,7 @@ function deleteTask($index){
 }
 function countTask($status){
 	$client = connectDB();
-	$record = $client->query( "SELECT COUNT(*) FROM Task WHERE status ='$status''" )[0];
+	$record = $client->query( "SELECT COUNT(*) FROM Task WHERE status ='$status'" )[0];
 	return $record->getOData()['COUNT'];
 
 }
