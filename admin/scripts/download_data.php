@@ -5,6 +5,8 @@ ARGOMENTI:
 2) LINKS DATA
 3) TIPO DI DATO
 */
+$CURRENT_DIR=getcwd();
+echo $CURRENT_DIR;
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 require_once "./vendor/autoload.php";
 use PhpOrient\PhpOrient;
@@ -18,7 +20,7 @@ $domains_permit = ['localhost'];
 $PATH_ORIENT="/home/binding/orientdb/bin";
 $PID=getmypid();
 $ARGS=$argv;
-$CURRENT_DIR=getcwd();
+
 $NAME_EXPERIMENT=$ARGS[1];
 $DATA_LINKS=explode(' ',$ARGS[2]);
 $DATA_TYPES=explode(' ',$ARGS[3]);
