@@ -40,9 +40,7 @@ then
   exit $E_ERR_ARG;
 fi
 PID_PROCESS=$(cat "./$1/pid");
-PID_WGET=$(cat "./$1/pid_wget");
 kill -9 $PID_PROCESS;
-kill -9 $PID_WGET;
 echo "Processo killato";
 query "UPDATE Task SET status = -1, percentage = 100 WHERE name = '$1';" > /dev/null;
 query "DROP DATABASE $1;" > /dev/null;
