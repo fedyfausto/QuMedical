@@ -12,9 +12,8 @@ require_once dirname(__FILE__)."/vendor/autoload.php";
 use PhpOrient\PhpOrient;
 use PhpOrient\Protocols\Binary\Data\ID;
 
-$domains_permit = ['localhost','http://alpha.dmi.unict.it/'];
+$domains_permit = ['localhost','alpha.dmi.unict.it'];
 
-echo $_SERVER['HTTP_HOST'];
 if(isset($_POST['action']) && (in_array($_SERVER['HTTP_HOST'],$domains_permit))){
 
 	$func = $_POST['action'];
