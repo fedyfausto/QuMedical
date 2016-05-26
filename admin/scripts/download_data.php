@@ -319,6 +319,7 @@ function downloadFile($url, $path){
 	global $CURRENT_PERCENT;
 	global $client_db_system;
 	global $cronometro;
+	global $NAME_EXPERIMENT;
 	$newfname = $path;
 	$dim_file_online = curl_get_file_size($url);
 	$file = fopen ($url, 'rb');
