@@ -98,7 +98,7 @@ trace("Database creato [{$cronometro->stop()}]");
 trace("Inizio il parsing dei file");
 $cronometro->start();
 for($i = 0; $i < count($DATA_TYPES); ++$i) {
-
+	$client_db_system->queryDB("UPDATE Task SET percentage = 0, file_name='$DATA_TYPES[$i].data' WHERE name = '$NAME_EXPERIMENT';");
 	$FILE_LINES = countLines("$DATA_TYPES[$i].data");
 	trace("Inizio il parsing del file $DATA_TYPES[$i].data [$FILE_LINES righe]");
 	if($DATA_TYPES[$i]=="samples"){
@@ -149,7 +149,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 
 		for($i = 1; $i <= $FILE_LINES; $i++) {
 			$file->seek($i);
-			$VALUES='"'.implode('", "', explode("\t",$file->current())).'"';
+			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);\n";
 			fwrite($file_quieries,$STRING);
 			unset($VALUES);
@@ -157,6 +157,9 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$perc = floor(min(100,($i / $FILE_LINES)*100));
 			$CURRENT_PERCENT=$perc;
 			traceline("Parsing in corso... $perc% [$i]");
+			if($cronometro_local->passed(10)){
+				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
+			}
 		}
 		fwrite($file_quieries,"DISCONNECT;\n");
 		trace("Parsing completato [{$cronometro_local->stop()}]");
@@ -286,14 +289,25 @@ function countLines($file){
 
 
 class Cronometro {
-	public $time = 0;     
+	public $time = 0;
+	private $passed_time=0;   
 
 	function start() { 
 		$this->time=time();
+		$this->passed_time=$this->time;
 	}
 
 	function stop(){
 		return $this->secondsToTime((time() - $this->time));
+	}
+	function passed($sec){
+		if((time() - $this->passed_time)>=$sec){
+			$this->passed_time = time();
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	function secondsToTime($s){
