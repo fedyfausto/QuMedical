@@ -143,14 +143,14 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		$cronometro_local->start();
 		$file_quieries = fopen('queries.sh', 'w');
 		fwrite($file_quieries,"
-			connect remote:localhost/$NAME_EXPERIMENT root root;\n
-			SET ignoreErrors TRUE;\n
-			SET echo FALSE;\n");
+			connect remote:localhost/$NAME_EXPERIMENT root root;
+			SET ignoreErrors TRUE;
+			SET echo FALSE;");
 
 		for($i = 1; $i <= $FILE_LINES; $i++) {
 			$file->seek($i);
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
-			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);\n";
+			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
 			fwrite($file_quieries,$STRING);
 			unset($VALUES);
 			unset($STRING);
@@ -162,7 +162,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			}
 			break;
 		}
-		fwrite($file_quieries,"DISCONNECT;\n");
+		fwrite($file_quieries,"DISCONNECT;");
 		trace("Parsing completato [{$cronometro_local->stop()}]");
 		$cronometro_local->start();
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
