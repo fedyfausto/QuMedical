@@ -106,6 +106,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		$cronometro_local->start();
 		/*INIZIO IL PARSING */
 		$file = new SplFileObject("$DATA_TYPES[$i].data");
+		$file->setFlags(SplFileObject::SKIP_EMPTY | SplFileObject::READ_AHEAD);
 
 
 		/*PRENDO LA PRIMA RIGA*/
@@ -143,8 +144,10 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			SET ignoreErrors TRUE;
 			SET echo FALSE;");
 
-		for($i = 1; $i <= $FILE_LINES; $i++) {
-			$file->seek($i);
+		$file->seek(1);
+		$i=0;
+		while (!$file->eof()) {
+			$i++;
 			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
 			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
 			$STRING=preg_replace( "/\r|\n/", "",$STRING);
@@ -157,7 +160,26 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			if($cronometro_local->passed(10)){
 				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
 			}
+			$file->next();
 		}
+
+/*
+		for($i = 1; $i < $FILE_LINES; $i++) {
+			
+			$VALUES='"'.implode('","', explode("\t",$file->current())).'"';
+			$STRING = "INSERT INTO $CLASS_NAME ($FIELD_STRING) VALUES ($VALUES);";
+			$STRING=preg_replace( "/\r|\n/", "",$STRING);
+			fwrite($file_quieries,$STRING."\n");
+			unset($VALUES);
+			unset($STRING);
+			$perc = floor(min(100,($i / $FILE_LINES)*100));
+			$CURRENT_PERCENT=$perc;
+			traceline("Parsing in corso... $perc% [$i]");
+			if($cronometro_local->passed(10)){
+				$client_db_system->queryDB("UPDATE Task SET percentage = $perc WHERE name = '$NAME_EXPERIMENT';");
+			}
+		}*/
+
 		fwrite($file_quieries,"DISCONNECT;");
 		fclose($file_quieries);
 		trace("Parsing completato [{$cronometro_local->stop()}]");
@@ -290,14 +312,11 @@ function delDir($dir) {
 
 function countLines($file){
 	$count = 0;
-	$fp = fopen( $file, 'r');
-
-	while(!feof( $fp)) {
-		fgets($fp);
+	$file = new SplFileObject($file);
+	while (!$file->eof()) {
 		$count++;
+		$file->next();
 	}
-
-	fclose( $fp);
 	return $count;
 }
 
