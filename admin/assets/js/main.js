@@ -1,7 +1,7 @@
 
 $(document).ready(function(){
 	var system = new System();
-	system.getDiskSpace(function(data){
+	system.taskList(function(data){
 		console.log(data);
 	});
 });
