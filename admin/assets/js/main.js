@@ -9,9 +9,9 @@ $(document).ready(function(){
 		console.log(data);
 	});
 
-	system.getBandwidth(function(data,null){
+	system.getBandwidth(function(data){
 		console.log(data);
-	});
+	},null);
 
 	system.getServerLoad(function(data){
 		console.log(data);
