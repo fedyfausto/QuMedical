@@ -185,7 +185,6 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
 		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
 		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
-		unlink('queries.sh');
 		
 	}
 	else{
@@ -210,28 +209,7 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 			$client_db->queryDB("create class $CLASS_NAME");
 		}
 
-		$file_quieries = fopen('queries.sh', 'w');
-		fwrite($file_quieries,"
-			connect remote:localhost/$NAME_EXPERIMENT root root;
-			SET ignoreErrors TRUE;
-			SET echo FALSE;");
-
-		foreach ($FIELD_ARRAY as $key => $propriety) {
-			if($key==0){
-				#trace("Prima chiave STRINGA trovata: $propriety");
-				#$client_db->queryDB( "CREATE PROPERTY $CLASS_NAME.$propriety STRING");
-				fwrite($file_quieries,"CREATE PROPERTY $CLASS_NAME.$propriety STRING"."\n");
-			}
-			else{
-				#$client_db->queryDB( "CREATE PROPERTY $CLASS_NAME.$propriety DOUBLE");
-				fwrite($file_quieries,"CREATE PROPERTY $CLASS_NAME.$propriety DOUBLE"."\n");
-			}
-		}
-		fwrite($file_quieries,"DISCONNECT;");
-		fclose($file_quieries);
-		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
-		unlink('queries.sh');
-
+		
 
 		trace("Creazione della classe $CLASS_NAME completata [{$cronometro_local->stop()}]");
 
@@ -273,10 +251,10 @@ for($i = 0; $i < count($DATA_TYPES); ++$i) {
 		trace("Inizio inserimento dati nel Database - attendere prego\r");
 		exec("$PATH_ORIENT/console.sh $CURRENT_DIR/queries.sh");
 		trace("Inserimento nel Database completato [{$cronometro_local->stop()}]");
-		unlink('queries.sh');
-		unlink("$DATA_TYPES[$i].data");
+		
 
 	}
+	unlink('queries.sh');
 	unlink("$DATA_TYPES[$i].data");
 	
 }
